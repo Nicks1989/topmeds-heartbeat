@@ -1,0 +1,21 @@
+name: TopMeds Heartbeat
+
+on:
+  schedule:
+    - cron: '*/2 * * * *'
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Homepage
+        run: curl -I https://www.etopmeds.com/
+
+      - name: Ping Sitemap
+        run: curl -I https://www.etopmeds.com/sitemap.xml
+
+      - name: Ping Categories
+        run: curl -I https://www.etopmeds.com/categories
+
+      - name: Ping Products
+        run: curl -I https://www.etopmeds.com/products
