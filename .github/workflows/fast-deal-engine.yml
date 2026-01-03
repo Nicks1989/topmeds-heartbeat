@@ -1,0 +1,49 @@
+name: TopMeds Fast Deal Engine (Global Safe)
+
+on:
+  # 12:00 PM IST = 06:30 UTC
+  schedule:
+    - cron: '30 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  fastdeal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Fast Deal Buyer Pack
+        run: |
+          echo "TOPMEDS FAST DEAL BUYERS — GLOBAL" > fast-deal.txt
+          echo "" >> fast-deal.txt
+          echo "Target Buyers: Importers, Distributors, Wholesalers, Pharmacies, Clinics, Small Hospitals" >> fast-deal.txt
+          echo "Regions: Africa • Middle East • SE Asia • LATAM" >> fast-deal.txt
+          echo "" >> fast-deal.txt
+          echo "SAFE SOURCES:" >> fast-deal.txt
+          echo "- Pharmacy registries" >> fast-deal.txt
+          echo "- Importer / wholesaler directories" >> fast-deal.txt
+          echo "- Chamber of commerce member lists" >> fast-deal.txt
+          echo "- Hospital & clinic public listings" >> fast-deal.txt
+          echo "" >> fast-deal.txt
+          echo "PUBLIC CORPORATE CONTACT CHANNELS ONLY:" >> fast-deal.txt
+          echo "- info@ / sales@ / procurement@" >> fast-deal.txt
+          echo "- Official company websites" >> fast-deal.txt
+          echo "- Public WhatsApp / phone listings" >> fast-deal.txt
+          echo "" >> fast-deal.txt
+          echo "READY-TO-SEND OUTREACH DRAFT (auto-adapt tone):" >> fast-deal.txt
+          echo "Subject: Pharmaceutical Supply — TopMeds" >> fast-deal.txt
+          echo "Hello {{COMPANY}}, we supply WHO-GMP medicines for export. Kindly share your current medicine requirements, quantities, and delivery country." >> fast-deal.txt
+          echo "" >> fast-deal.txt
+          echo "TIP: Send personalized 1-to-1 messages only." >> fast-deal.txt
+
+      - name: Email Fast Deal Buyer Pack
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: topmeds02@gmail.com
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "🚀 TOPMEDS FAST-DEAL BUYERS (GLOBAL)"
+          to: topmeds02@gmail.com
+          from: TopMeds Fast Deal Engine <topmeds02@gmail.com>
+          body: |
+            Your daily FAST-DEAL buyer pack is ready.
+            Use public corporate contact channels and personalized outreach only.
