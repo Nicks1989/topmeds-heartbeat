@@ -1,0 +1,41 @@
+name: TopMeds Buyer Intelligence
+
+on:
+  schedule:
+    # 12:00 PM IST = 06:30 UTC
+    - cron: '30 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  intel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare Daily Buyer Intelligence
+        run: |
+          echo "TOPMEDS BUYER OPPORTUNITIES REPORT" > report.txt
+          echo "" >> report.txt
+          echo "Regions: Kenya / Nigeria / Philippines" >> report.txt
+          echo "" >> report.txt
+          echo "Official procurement portals:" >> report.txt
+          echo "- Kenya: https://www.tenders.go.ke" >> report.txt
+          echo "- Nigeria: https://www.nigeriantenders.com" >> report.txt
+          echo "- Philippines: https://www.philgeps.gov.ph" >> report.txt
+          echo "" >> report.txt
+          echo "Search categories: Medicines, Pharmaceuticals, Medical Supplies" >> report.txt
+
+      - name: Email Daily Buyer Report
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: topmeds02@gmail.com
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "🌍 TOPMEDS DAILY BUYER OPPORTUNITIES"
+          to: topmeds02@gmail.com
+          from: TopMeds Buyer Bot <topmeds02@gmail.com>
+          body: |
+            Your daily buyer opportunity report is ready.
+            Check official portals:
+            Kenya: https://www.tenders.go.ke
+            Nigeria: https://www.nigeriantenders.com
+            Philippines: https://www.philgeps.gov.ph
