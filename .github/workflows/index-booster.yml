@@ -1,0 +1,27 @@
+name: TopMeds Auto Index Booster
+
+on:
+  schedule:
+    # Runs daily at 2 AM IST (20:30 UTC)
+    - cron: '30 20 * * *'
+  workflow_dispatch:
+
+jobs:
+  boost:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Sitemap
+        run: |
+          curl -s https://www.etopmeds.com/sitemap.xml > sitemap.xml
+
+      - name: Extract URLs (limit 50)
+        run: |
+          grep -oP '(?<=<loc>).*?(?=</loc>)' sitemap.xml | head -n 50 > urls.txt
+
+      - name: Ping Google & Bing
+        run: |
+          while read url; do
+            echo "Pinging $url"
+            curl -s "https://www.google.com/ping?sitemap=$url"
+            curl -s "https://www.bing.com/ping?sitemap=$url"
+          done < urls.txt
