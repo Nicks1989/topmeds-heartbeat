@@ -1,0 +1,68 @@
+name: TopMeds Global Expansion (Safe)
+
+on:
+  # 12:00 PM IST = 06:30 UTC
+  schedule:
+    - cron: '30 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  expand:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Global Opportunity Pack
+        run: |
+          echo "TOPMEDS — GLOBAL BUYER OPPORTUNITIES (SAFE)" > global-pack.txt
+          echo "" >> global-pack.txt
+          echo "Coverage: 20 Major Import Markets" >> global-pack.txt
+          echo "Delivery Time: 12:00 PM IST" >> global-pack.txt
+          echo "" >> global-pack.txt
+          echo "OFFICIAL & PUBLIC SOURCES (examples):" >> global-pack.txt
+          echo "USA: https://sam.gov" >> global-pack.txt
+          echo "UK: https://www.contractsfinder.service.gov.uk" >> global-pack.txt
+          echo "Canada: https://canadabuys.canada.ca" >> global-pack.txt
+          echo "Australia: https://www.tenders.gov.au" >> global-pack.txt
+          echo "UAE: https://www.etendering.gov.ae" >> global-pack.txt
+          echo "Saudi Arabia: https://www.etenders.gov.sa" >> global-pack.txt
+          echo "South Africa: https://www.etenders.gov.za" >> global-pack.txt
+          echo "Egypt: https://www.etenders.gov.eg" >> global-pack.txt
+          echo "Brazil: https://www.gov.br/compras" >> global-pack.txt
+          echo "Mexico: https://compranet.hacienda.gob.mx" >> global-pack.txt
+          echo "Chile: https://www.mercadopublico.cl" >> global-pack.txt
+          echo "Argentina: https://comprar.gob.ar" >> global-pack.txt
+          echo "Peru: https://www.gob.pe/compras" >> global-pack.txt
+          echo "Colombia: https://www.colombiacompra.gov.co" >> global-pack.txt
+          echo "Turkey: https://ekap.kik.gov.tr" >> global-pack.txt
+          echo "Indonesia: https://lpse.lkpp.go.id" >> global-pack.txt
+          echo "Vietnam: https://muasamcong.mpi.gov.vn" >> global-pack.txt
+          echo "Thailand: https://www.gprocurement.go.th" >> global-pack.txt
+          echo "Malaysia: https://www.malaysia.gov.my/portal" >> global-pack.txt
+          echo "Nepal: https://bolpatra.gov.np" >> global-pack.txt
+          echo "" >> global-pack.txt
+          echo "WHAT TO TARGET:" >> global-pack.txt
+          echo "- Medicines / Pharmaceuticals / Medical Supplies" >> global-pack.txt
+          echo "- Private distributors + hospitals (fast-closing)" >> global-pack.txt
+          echo "" >> global-pack.txt
+          echo "SAFE CONTACT CHANNELS:" >> global-pack.txt
+          echo "- Official RFQ/Tender pages" >> global-pack.txt
+          echo "- Public corporate emails on company websites (info@, sales@, procurement@)" >> global-pack.txt
+          echo "" >> global-pack.txt
+          echo "READY-TO-SEND DRAFT (auto-adapted):" >> global-pack.txt
+          echo "Subject: {{PRODUCT}} supply — TopMeds" >> global-pack.txt
+          echo "Hello {{COMPANY}}, we can supply {{PRODUCT}}. Please share quantity, destination country, and timeline." >> global-pack.txt
+          echo "" >> global-pack.txt
+          echo "TIP: Keep outreach 1:1, personalized, and low volume." >> global-pack.txt
+
+      - name: Email Global Opportunity Pack
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: topmeds02@gmail.com
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "🌍 TOPMEDS — Global Buyer Opportunities (SAFE)"
+          to: topmeds02@gmail.com
+          from: TopMeds Global Engine <topmeds02@gmail.com>
+          body: |
+            Your GLOBAL SAFE buyer opportunity pack is ready.
+            Use official RFQ/Tender pages and public corporate contacts for outreach.
