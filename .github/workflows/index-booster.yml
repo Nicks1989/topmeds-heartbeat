@@ -11,8 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch Sitemap
+        id: fetch
         run: |
-          curl -s https://www.etopmeds.com/sitemap.xml > sitemap.xml
+          STATUS=$(curl -o sitemap.xml -s -w "%{http_code}" https://www.etopmeds.com/sitemap.xml)
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: Fail if Sitemap Unreachable
+        if: steps.fetch.outputs.status != '200'
+        run: |
+          echo "Sitemap unreachable with status ${{ steps.fetch.outputs.status }}"
+          exit 1
 
       - name: Extract URLs (limit 50)
         run: |
@@ -21,7 +29,21 @@ jobs:
       - name: Ping Google & Bing
         run: |
           while read url; do
-            echo "Pinging $url"
-            curl -s "https://www.google.com/ping?sitemap=$url"
-            curl -s "https://www.bing.com/ping?sitemap=$url"
+            curl -s "https://www.google.com/ping?sitemap=$url" || exit 1
+            curl -s "https://www.bing.com/ping?sitemap=$url" || exit 1
           done < urls.txt
+
+      - name: Email Alert on Failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: topmeds02@gmail.com
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "🚨 TOPMEDS INDEX ALERT"
+          to: topmeds02@gmail.com
+          from: TopMeds Index Bot <topmeds02@gmail.com>
+          body: |
+            Indexing system detected an error.
+            Please check your sitemap, Google/Bing ping, or server availability.
