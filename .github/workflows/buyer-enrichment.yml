@@ -1,0 +1,52 @@
+name: TopMeds Buyer Enrichment (Safe)
+
+on:
+  # 12:00 PM IST = 06:30 UTC
+  schedule:
+    - cron: '30 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Daily Opportunity Pack
+        run: |
+          echo "TOPMEDS — DAILY BUYER OPPORTUNITIES (SAFE)" > pack.txt
+          echo "" >> pack.txt
+          echo "Regions: Nigeria / Kenya / Philippines" >> pack.txt
+          echo "Delivery Time: 12:00 PM IST" >> pack.txt
+          echo "" >> pack.txt
+          echo "SOURCE PORTALS (public procurement & distributor onboarding):" >> pack.txt
+          echo "- Nigeria: https://www.nigeriantenders.com" >> pack.txt
+          echo "- Kenya:   https://www.tenders.go.ke" >> pack.txt
+          echo "- PH:      https://www.philgeps.gov.ph" >> pack.txt
+          echo "" >> pack.txt
+          echo "WHAT TO LOOK FOR (today’s pharma demand):" >> pack.txt
+          echo "- Medicines / Pharmaceuticals / Medical Supplies" >> pack.txt
+          echo "- Private distributors + hospitals (fast-closing)" >> pack.txt
+          echo "" >> pack.txt
+          echo "HOW TO CONTACT (SAFE):" >> pack.txt
+          echo "- Use OFFICIAL tender / RFQ pages only." >> pack.txt
+          echo "- Use PUBLIC corporate contacts on company websites (info@, sales@, procurement@)." >> pack.txt
+          echo "" >> pack.txt
+          echo "READY-TO-SEND DRAFT (auto-adapt tone by buyer type):" >> pack.txt
+          echo "Subject: Supply of {{PRODUCT}} – TopMeds" >> pack.txt
+          echo "Body: Hello {{COMPANY}}, we can supply {{PRODUCT}}. Kindly share quantity, delivery country, and timeline." >> pack.txt
+          echo "" >> pack.txt
+          echo "TIP: Keep outreach 1:1, low-volume, and personalized." >> pack.txt
+
+      - name: Email Daily Opportunity Pack
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: topmeds02@gmail.com
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "🌍 TOPMEDS — Daily Buyer Opportunities (SAFE)"
+          to: topmeds02@gmail.com
+          from: TopMeds Buyer Engine <topmeds02@gmail.com>
+          body: |
+            Your daily SAFE buyer opportunity pack is ready.
+            Use official tender/RFQ pages and public corporate contacts for outreach.
+            See attached instructions and draft guidance.
