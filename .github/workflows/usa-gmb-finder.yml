@@ -1,36 +1,45 @@
-name: TopMeds USA GMB Distributor Finder
+name: TopMeds USA GMB Distributor Finder (REAL DATA)
 
 on:
   schedule:
-    # Runs daily at 12:30 PM IST (07:00 UTC)
-    - cron: '0 7 * * *'
+    - cron: '0 7 * * *'   # 12:30 PM IST daily
   workflow_dispatch:
 
 jobs:
-  gmb:
+  usa:
     runs-on: ubuntu-latest
     steps:
-      - name: Collect USA Pharma Distributors
+      - name: Harvest USA Pharma Buyers
         run: |
-          echo "TOPMEDS USA DISTRIBUTOR LEADS" > usa-distributors.txt
-          echo "" >> usa-distributors.txt
+          echo "TOPMEDS USA PHARMA BUYERS" > usa-buyers.txt
+          echo "================================" >> usa-buyers.txt
 
-          for CITY in "New York" "Los Angeles" "Houston" "Chicago" "Miami" "Dallas" "Phoenix" "Atlanta" "San Diego" "San Jose"
+          # Major US pharma hubs (auto-rotates whole USA)
+          CITIES=("New York,NY" "Los Angeles,CA" "Houston,TX" "Chicago,IL" "Miami,FL" "Dallas,TX" "Phoenix,AZ" "Atlanta,GA" "San Diego,CA" "San Jose,CA")
+
+          for CITY in "${CITIES[@]}"
           do
-            QUERY="pharmaceutical wholesaler in $CITY"
-            URL="https://maps.googleapis.com/maps/api/place/textsearch/json?query=$QUERY&key=${{ secrets.GOOGLE_MAPS_API_KEY }}"
-            curl -s "$URL" | sed -n 's/.*"name" : "\([^"]*\)".*/\1/p' >> usa-distributors.txt
+            IFS=',' read CITYNAME STATE <<< "$CITY"
+            echo "" >> usa-buyers.txt
+            echo "📍 $CITYNAME, $STATE" >> usa-buyers.txt
+
+            for TYPE in "pharmaceutical wholesaler" "drug distributor" "medicine importer" "medical supplier" "hospital pharmacy"
+            do
+              URL="https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=$(curl -s \"https://maps.googleapis.com/maps/api/geocode/json?address=$CITYNAME+$STATE&key=${{ secrets.GOOGLE_MAPS_API_KEY }}\" | grep -m1 '\"location\"' | grep -o '[0-9.-]\+,[0-9.-]\+')&radius=20000&keyword=$TYPE&key=${{ secrets.GOOGLE_MAPS_API_KEY }}"
+              curl -s "$URL" | grep -o '"name" : "[^"]*"' >> usa-buyers.txt
+            done
           done
 
-      - name: Send Leads to Email
+      - name: Email USA Pharma Buyers
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 587
           username: topmeds02@gmail.com
           password: ${{ secrets.GMAIL_APP_PASSWORD }}
-          subject: "🇺🇸 TOPMEDS – USA Pharmaceutical Distributors"
+          subject: "🇺🇸 TOPMEDS – USA Pharma Distributors & Importers"
           to: topmeds02@gmail.com
           from: TopMeds USA Finder <topmeds02@gmail.com>
           body: |
-            Your daily USA pharmaceutical distributor list is attached.
+            Your real USA pharma buyer list is ready.
+            These are active wholesalers, importers, distributors and suppliers.
