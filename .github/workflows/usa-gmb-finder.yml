@@ -10,7 +10,7 @@ jobs:
   gmb:
     runs-on: ubuntu-latest
     steps:
-      - name: Search USA Pharma Distributors
+      - name: Collect USA Pharma Distributors
         run: |
           echo "TOPMEDS USA DISTRIBUTOR LEADS" > usa-distributors.txt
           echo "" >> usa-distributors.txt
@@ -19,10 +19,10 @@ jobs:
           do
             QUERY="pharmaceutical wholesaler in $CITY"
             URL="https://maps.googleapis.com/maps/api/place/textsearch/json?query=$QUERY&key=${{ secrets.GOOGLE_MAPS_API_KEY }}"
-            curl -s "$URL" | grep -o '"name" : "[^"]*"' >> usa-distributors.txt
+            curl -s "$URL" | sed -n 's/.*"name" : "\([^"]*\)".*/\1/p' >> usa-distributors.txt
           done
 
-      - name: Email USA Distributor Leads
+      - name: Send Leads to Email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -33,5 +33,4 @@ jobs:
           to: topmeds02@gmail.com
           from: TopMeds USA Finder <topmeds02@gmail.com>
           body: |
-            Your daily USA pharmaceutical distributor list is ready.
-            These are live Google Maps businesses actively selling medicines.
+            Your daily USA pharmaceutical distributor list is attached.
