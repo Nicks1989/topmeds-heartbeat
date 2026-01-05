@@ -1,45 +1,49 @@
-name: TopMeds USA GMB Distributor Finder (REAL DATA)
+name: TopMeds USA Buyer Engine (REAL DATA)
 
 on:
-  schedule:
-    - cron: '0 7 * * *'   # 12:30 PM IST daily
   workflow_dispatch:
+  schedule:
+    - cron: '30 6 * * *'   # Daily 12:00 PM IST
 
 jobs:
   usa:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Harvest USA Pharma Buyers
-        run: |
-          echo "TOPMEDS USA PHARMA BUYERS" > usa-buyers.txt
-          echo "================================" >> usa-buyers.txt
+    - name: Checkout
+      uses: actions/checkout@v3
 
-          # Major US pharma hubs (auto-rotates whole USA)
-          CITIES=("New York,NY" "Los Angeles,CA" "Houston,TX" "Chicago,IL" "Miami,FL" "Dallas,TX" "Phoenix,AZ" "Atlanta,GA" "San Diego,CA" "San Jose,CA")
+    - name: Install jq
+      run: sudo apt-get install -y jq
 
-          for CITY in "${CITIES[@]}"
-          do
-            IFS=',' read CITYNAME STATE <<< "$CITY"
-            echo "" >> usa-buyers.txt
-            echo "📍 $CITYNAME, $STATE" >> usa-buyers.txt
+    - name: Harvest USA Pharma Buyers
+      run: |
+        echo "TOPMEDS USA PHARMA DISTRIBUTORS" > usa-buyers.txt
+        echo "--------------------------------" >> usa-buyers.txt
 
-            for TYPE in "pharmaceutical wholesaler" "drug distributor" "medicine importer" "medical supplier" "hospital pharmacy"
-            do
-              URL="https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=$(curl -s \"https://maps.googleapis.com/maps/api/geocode/json?address=$CITYNAME+$STATE&key=${{ secrets.GOOGLE_MAPS_API_KEY }}\" | grep -m1 '\"location\"' | grep -o '[0-9.-]\+,[0-9.-]\+')&radius=20000&keyword=$TYPE&key=${{ secrets.GOOGLE_MAPS_API_KEY }}"
-              curl -s "$URL" | grep -o '"name" : "[^"]*"' >> usa-buyers.txt
-            done
-          done
+        for page in {1..10}
+        do
+          curl -s "https://maps.googleapis.com/maps/api/place/textsearch/json?query=pharmaceutical+wholesaler+distributor+USA&key=${{ secrets.GOOGLE_MAPS_KEY }}" > result.json
 
-      - name: Email USA Pharma Buyers
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: topmeds02@gmail.com
-          password: ${{ secrets.GMAIL_APP_PASSWORD }}
-          subject: "🇺🇸 TOPMEDS – USA Pharma Distributors & Importers"
-          to: topmeds02@gmail.com
-          from: TopMeds USA Finder <topmeds02@gmail.com>
-          body: |
-            Your real USA pharma buyer list is ready.
-            These are active wholesalers, importers, distributors and suppliers.
+          jq -r '.results[] | "\(.name) | \(.formatted_address) | \(.place_id)"' result.json >> usa-buyers.txt
+        done
+
+    - name: Email Buyer List
+      run: |
+        python3 - <<EOF
+        import smtplib
+        from email.message import EmailMessage
+
+        msg = EmailMessage()
+        msg['Subject'] = "🇺🇸 TOPMEDS – USA Pharmaceutical Distributors"
+        msg['From'] = "topmeds02@gmail.com"
+        msg['To'] = "topmeds02@gmail.com"
+
+        with open("usa-buyers.txt") as f:
+            msg.set_content(f.read())
+
+        s = smtplib.SMTP_SSL("smtp.gmail.com",465)
+        s.login("topmeds02@gmail.com","${{ secrets.GMAIL_APP_PASSWORD }}")
+        s.send_message(msg)
+        s.quit()
+        EOF
